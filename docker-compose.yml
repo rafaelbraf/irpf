@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=minha_senha
+      - POSTGRES_DB=irpf
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    volumes:
+      - ./scripts:/docker-entrypoint-initdb.d
+
+  irpf-api:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: irpf-api
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=minha_senha
+      - DB_NAME=irpf
+      - PORT=8081
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
